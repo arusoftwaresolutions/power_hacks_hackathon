@@ -16,7 +16,7 @@ This repo contains a **backend API** and a **frontend web app**:
 
 - **Backend** (`backend/`)
   - Node.js + TypeScript + Express
-  - PostgreSQL via Prisma ORM (designed for DigitalOcean Managed PostgreSQL)
+  - PostgreSQL via Prisma ORM (designed to work with Supabase or any hosted Postgres)
   - Authentication & authorization with JWTs (access + refresh tokens)
   - Content safety middleware (keyword blocklist + sentiment analysis)
   - REST API for:
@@ -72,9 +72,10 @@ This repo contains a **backend API** and a **frontend web app**:
 - Resources have categories, difficulty levels, and tags
 - Moderator/Admin can publish new resources (safety‑checked)
 
-### 5. File Uploads (DigitalOcean Spaces)
+### 5. File Uploads (Object Storage)
 - Backend exposes a **signed URL** endpoint for uploads
-- Frontend (or other clients) can use the signed URL to upload directly to Spaces/S3
+- Frontend (or other clients) can use the signed URL to upload directly to an S3-compatible bucket
+- You can back this with Supabase Storage (via S3 gateway) or any other S3-compatible provider
 - Keeps the API stateless for large files and reduces attack surface
 
 ---
@@ -91,9 +92,9 @@ This repo contains a **backend API** and a **frontend web app**:
 - Tailwind CSS, Framer Motion, SWR
 
 **Infrastructure Targets**
-- Backend: Dockerized for **DigitalOcean Droplets**
-- Database: **DigitalOcean Managed PostgreSQL**
-- File storage: **DigitalOcean Spaces** (S3‑compatible)
+- Backend: Node.js service deployed to **Render** (free tier) or similar
+- Database: **Supabase** (hosted PostgreSQL, free tier) or any compatible Postgres
+- File storage: Any **S3‑compatible** object storage (optionally Supabase Storage via S3 gateway)
 - Frontend: deployable to **Vercel**
 
 ---
@@ -126,11 +127,11 @@ You’ll see two main sub‑projects:
 
 2. Edit `.env` with **your values**:
 
-   - `DATABASE_URL` – PostgreSQL connection string (if using DO Managed PG, include `sslmode=require`)
+   - `DATABASE_URL` – PostgreSQL connection string from **Supabase** (or another hosted Postgres)
    - `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET` – long random secrets
    - `FRONTEND_ORIGIN` – `http://localhost:3000` for local dev
    - `COOKIE_DOMAIN` – `localhost` for local dev
-   - (Optional) `SPACES_*` variables for DigitalOcean Spaces integration
+   - (Optional) `SPACES_*` variables for S3-compatible object storage (can be backed by Supabase Storage)
 
 3. Install dependencies, run migrations and seed sample data:
 
@@ -208,35 +209,36 @@ Basic frontend tests are not yet implemented; you can integrate Jest/React Testi
 ---
 ## Deployment Overview
 
-### Backend (DigitalOcean Droplet)
+### Backend (Render + Supabase)
 
-1. Build the Docker image:
+1. **Create a Supabase project**
+   - In the Supabase dashboard, create a new project.
+   - Go to Project Settings → Database and copy the **connection string**.
+   - This will be your `DATABASE_URL`.
+
+2. **Push this repo to GitHub/GitLab** (if not already)
+
+3. **Create a new Web Service on Render**
+   - Go to Render → New → Web Service.
+   - Connect your repo and select the `backend/` directory.
+   - **Build Command:** `npm install && npm run prisma:generate && npm run build`
+   - **Start Command:** `npm run start`
+   - Environment:
+     - `NODE_ENV=production`
+     - `DATABASE_URL=<your Supabase connection string>`
+     - `JWT_ACCESS_SECRET=<long-random-string>`
+     - `JWT_REFRESH_SECRET=<another-long-random-string>`
+     - `FRONTEND_ORIGIN=https://your-frontend-domain` (Vercel URL in production)
+     - `COOKIE_DOMAIN=yourdomain.com` (or `.yourdomain.com`)
+     - Optional: `SPACES_*` if you use S3-compatible storage.
+
+4. Render will build and start the service. Once deployed, test:
 
    ```bash
-   cd backend
-   docker build -t hersafespace-api .
+   curl https://your-render-service-url/api/health
    ```
 
-2. Ensure `.env` in the Droplet contains production values:
-   - `DATABASE_URL` for DO Managed PostgreSQL
-   - `FRONTEND_ORIGIN` set to your Vercel/production URL
-   - `COOKIE_DOMAIN` set to your domain (e.g. `.example.com`)
-   - `SPACES_*` for DigitalOcean Spaces
-
-3. Run the container:
-
-   ```bash
-   docker run -d --name hersafespace-api \
-     --env-file .env \
-     -p 4000:4000 \
-     hersafespace-api
-   ```
-
-4. Run migrations against your production DB if not already done:
-
-   ```bash
-   docker exec -it hersafespace-api npx prisma migrate deploy
-   ```
+   You should get `{ "status": "ok" }`.
 
 ### Frontend (Vercel)
 

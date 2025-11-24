@@ -22,10 +22,12 @@ model User {
 
   threads      ForumThread[]
   posts        ForumPost[]
-  reportsFiled Report[]        @relation("ReportsFiled")
-  reportsOwned Report[]        @relation("ReportsOwned")
-  refreshTokens RefreshToken[]
-  resources    Resource[]
+  reportsFiled        Report[]            @relation("ReportsFiled")
+  reportsOwned        Report[]            @relation("ReportsOwned")
+  refreshTokens       RefreshToken[]
+  resources           Resource[]
+  uploadedFiles       UploadedFile[]
+  passwordResetTokens PasswordResetToken[]
 }
 
 enum UserRole {
