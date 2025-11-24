@@ -1,7 +1,7 @@
 "use client";
 
 import useSWR from 'swr';
-import { apiFetch } from '../../lib/api';
+import { swrFetcher } from '../../lib/api';
 
 interface ResourcesResponse {
   resources: {
@@ -14,7 +14,7 @@ interface ResourcesResponse {
 }
 
 export default function ResourcesPage() {
-  const { data, error } = useSWR<ResourcesResponse>('/api/resources', (url) => apiFetch(url));
+  const { data, error } = useSWR<ResourcesResponse>('/api/resources', swrFetcher<ResourcesResponse>);
 
   return (
     <section className="space-y-4">

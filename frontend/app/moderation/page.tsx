@@ -1,7 +1,7 @@
 "use client";
 
 import useSWR from 'swr';
-import { apiFetch } from '../../lib/api';
+import { swrFetcher } from '../../lib/api';
 
 interface ReportsResponse {
   reports: {
@@ -13,7 +13,7 @@ interface ReportsResponse {
 }
 
 export default function ModerationPage() {
-  const { data, error } = useSWR<ReportsResponse>('/api/reports', (url) => apiFetch(url));
+  const { data, error } = useSWR<ReportsResponse>('/api/reports', swrFetcher<ReportsResponse>);
 
   return (
     <section className="space-y-4">

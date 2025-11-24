@@ -2,7 +2,7 @@
 
 import useSWR from 'swr';
 import { useState } from 'react';
-import { apiFetch } from '../../lib/api';
+import { apiFetch, swrFetcher } from '../../lib/api';
 
 interface ThreadsResponse {
   threads: {
@@ -18,8 +18,8 @@ interface CategoriesResponse {
 }
 
 export default function ForumPage() {
-  const { data, error, mutate } = useSWR<ThreadsResponse>('/api/forum/threads', (url) => apiFetch(url));
-  const { data: categories } = useSWR<CategoriesResponse>('/api/forum/categories', (url) => apiFetch(url));
+  const { data, error, mutate } = useSWR<ThreadsResponse>('/api/forum/threads', swrFetcher<ThreadsResponse>);
+  const { data: categories } = useSWR<CategoriesResponse>('/api/forum/categories', swrFetcher<CategoriesResponse>);
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [categoryId, setCategoryId] = useState('');

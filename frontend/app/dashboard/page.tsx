@@ -1,7 +1,7 @@
 "use client";
 
 import useSWR from 'swr';
-import { apiFetch } from '../../lib/api';
+import { swrFetcher } from '../../lib/api';
 
 interface MeResponse {
   user: {
@@ -10,7 +10,7 @@ interface MeResponse {
 }
 
 export default function DashboardPage() {
-  const { data } = useSWR<MeResponse>('/api/auth/me', (url) => apiFetch(url));
+  const { data } = useSWR<MeResponse>('/api/auth/me', swrFetcher<MeResponse>);
 
   return (
     <section className="space-y-6">

@@ -3,7 +3,7 @@
 import { useParams } from 'next/navigation';
 import useSWR from 'swr';
 import { useState } from 'react';
-import { apiFetch } from '../../../lib/api';
+import { apiFetch, swrFetcher } from '../../../lib/api';
 
 interface ThreadResponse {
   thread: {
@@ -17,7 +17,7 @@ interface ThreadResponse {
 
 export default function ThreadPage() {
   const params = useParams<{ id: string }>();
-  const { data, mutate } = useSWR<ThreadResponse>(`/api/forum/threads/${params.id}`, (url) => apiFetch(url));
+  const { data, mutate } = useSWR<ThreadResponse>(`/api/forum/threads/${params.id}`, swrFetcher<ThreadResponse>);
   const [body, setBody] = useState('');
   const [error, setError] = useState<string | null>(null);
 
