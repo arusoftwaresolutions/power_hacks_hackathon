@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String          @id @default(cuid())
+  email        String          @unique
+  username     String          @unique
+  name         String
+  passwordHash String
+  role         UserRole        @default(USER)
+  avatarUrl    String?
+  country      String?
+  ageRange     String?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  threads      ForumThread[]
+  posts        ForumPost[]
+  reportsFiled Report[]        @relation("ReportsFiled")
+  reportsOwned Report[]        @relation("ReportsOwned")
+  refreshTokens RefreshToken[]
+  resources    Resource[]
+}
+
+enum UserRole {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  tokenHash String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  revokedAt DateTime?
+}
+
+model ForumCategory {
+  id          String        @id @default(cuid())
+  name        String
+  description String
+  sortOrder   Int           @default(0)
+  threads     ForumThread[]
+}
+
+model ForumThread {
+  id          String        @id @default(cuid())
+  title       String
+  body        String
+  author      User          @relation(fields: [authorId], references: [id])
+  authorId    String
+  category    ForumCategory @relation(fields: [categoryId], references: [id])
+  categoryId  String
+  isLocked    Boolean       @default(false)
+  isFlagged   Boolean       @default(false)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  posts       ForumPost[]
+}
+
+model ForumPost {
+  id        String   @id @default(cuid())
+  thread    ForumThread @relation(fields: [threadId], references: [id])
+  threadId  String
+  author    User    @relation(fields: [authorId], references: [id])
+  authorId  String
+  body      String
+  isEdited  Boolean @default(false)
+  isFlagged Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Report {
+  id            String   @id @default(cuid())
+  reporter      User     @relation("ReportsFiled", fields: [reporterId], references: [id])
+  reporterId    String
+  targetUser    User?    @relation("ReportsOwned", fields: [targetUserId], references: [id])
+  targetUserId  String?
+  targetType    String
+  targetId      String?
+  description   String
+  status        ReportStatus @default(OPEN)
+  severity      ReportSeverity @default(MEDIUM)
+  createdAt     DateTime @default(now())
+  resolvedAt    DateTime?
+  resolvedById  String?
+}
+
+enum ReportStatus {
+  OPEN
+  IN_REVIEW
+  RESOLVED
+}
+
+enum ReportSeverity {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model ResourceCategory {
+  id          String     @id @default(cuid())
+  name        String
+  description String
+  resources   Resource[]
+}
+
+model Resource {
+  id          String           @id @default(cuid())
+  title       String
+  content     String
+  category    ResourceCategory @relation(fields: [categoryId], references: [id])
+  categoryId  String
+  level       String
+  tags        String[]
+  author      User             @relation(fields: [authorId], references: [id])
+  authorId    String
+  publishedAt DateTime?
+  isFeatured  Boolean          @default(false)
+}
+
+model UploadedFile {
+  id        String   @id @default(cuid())
+  owner     User     @relation(fields: [ownerId], references: [id])
+  ownerId   String
+  url       String
+  key       String
+  mimeType  String
+  createdAt DateTime @default(now())
+  metadata  Json?
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  tokenHash String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+}
