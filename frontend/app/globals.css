@@ -2,8 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  color-scheme: dark;
+}
+
 body {
-  @apply bg-bg text-white antialiased;
+  @apply bg-bg text-white antialiased text-[15px] leading-relaxed;
 }
 
 a {
@@ -11,9 +15,32 @@ a {
 }
 
 .btn-primary {
-  @apply inline-flex items-center justify-center rounded-full bg-brand-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-900/40 transition hover:bg-brand-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300;
+  @apply inline-flex items-center justify-center rounded-full bg-brand-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-900/40 transition-colors hover:bg-brand-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300;
 }
 
 .card {
-  @apply rounded-2xl bg-surface/90 p-6 shadow-xl shadow-black/40 backdrop-blur;
+  @apply relative overflow-hidden rounded-2xl border border-white/5 bg-surface/90 p-6 shadow-xl shadow-black/40 backdrop-blur transition hover:border-brand-400/40 hover:shadow-2xl hover:shadow-black/60;
+}
+
+.nav-link {
+  @apply relative rounded-full px-3 py-1 text-xs font-medium text-brand-200 transition-colors hover:text-brand-50 md:text-sm;
+}
+
+.nav-link::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: radial-gradient(circle at 0 0, rgba(244, 114, 182, 0.35), transparent 55%),
+    radial-gradient(circle at 100% 100%, rgba(56, 189, 248, 0.35), transparent 55%);
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 150ms ease-out, transform 150ms ease-out;
+  z-index: -1;
+}
+
+.nav-link:hover::before,
+.nav-link:focus-visible::before {
+  opacity: 1;
+  transform: scale(1);
 }

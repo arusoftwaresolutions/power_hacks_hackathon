@@ -3,6 +3,7 @@
 import useSWR from 'swr';
 import { useState } from 'react';
 import { apiFetch, swrFetcher } from '../../lib/api';
+import { useRequireAuth } from '../../lib/useRequireAuth';
 
 interface ThreadsResponse {
   threads: {
@@ -18,6 +19,7 @@ interface CategoriesResponse {
 }
 
 export default function ForumPage() {
+  const { user, isLoading } = useRequireAuth();
   const { data, error, mutate } = useSWR<ThreadsResponse>('/api/forum/threads', swrFetcher<ThreadsResponse>);
   const { data: categories } = useSWR<CategoriesResponse>('/api/forum/categories', swrFetcher<CategoriesResponse>);
   const [title, setTitle] = useState('');
@@ -25,6 +27,14 @@ export default function ForumPage() {
   const [categoryId, setCategoryId] = useState('');
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
+
+  if (isLoading || !user) {
+    return (
+      <section className="flex min-h-[50vh] items-center justify-center text-sm text-brand-200">
+        Checking your account…
+      </section>
+    );
+  }
 
   async function handleCreateThread(e: React.FormEvent) {
     e.preventDefault();
@@ -48,19 +58,20 @@ export default function ForumPage() {
   }
 
   return (
-    <section className="space-y-4">
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold text-brand-50">Community forums</h1>
-          <p className="text-sm text-brand-200">
+    <section className="space-y-6 md:space-y-8">
+      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+        <div className="space-y-2">
+          <p className="text-xs uppercase tracking-[0.2em] text-brand-300">Community</p>
+          <h1 className="text-2xl font-semibold text-brand-50 md:text-3xl">Community forums</h1>
+          <p className="max-w-xl text-sm text-brand-200 md:text-base">
             Join conversations about online safety, mental health, tech careers and more.
           </p>
         </div>
-        <a href="#new-thread" className="btn-primary text-xs">
+        <a href="#new-thread" className="btn-primary text-xs md:text-sm">
           Start a thread
         </a>
       </div>
-      <div className="space-y-3">
+      <div className="space-y-4 md:space-y-5">
         {error && <p className="text-xs text-red-400">Could not load threads</p>}
         {!data && !error && <p className="text-xs text-brand-300">Loading conversations…</p>}
         {data &&
@@ -68,16 +79,20 @@ export default function ForumPage() {
             <a
               key={t.id}
               href={`/forum/${t.id}`}
-              className="card flex flex-col gap-1 border border-white/5 hover:border-brand-400/40"
+              className="card flex flex-col gap-2 border border-white/5 hover:border-brand-400/40"
             >
               <p className="text-xs uppercase tracking-wide text-brand-300">{t.category.name}</p>
-              <p className="text-sm font-semibold text-brand-50">{t.title}</p>
-              <p className="line-clamp-2 text-xs text-brand-300">{t.body}</p>
+              <p className="text-sm font-semibold text-brand-50 md:text-base">{t.title}</p>
+              <p className="line-clamp-2 text-xs text-brand-300 md:text-sm">{t.body}</p>
             </a>
           ))}
       </div>
 
-      <form id="new-thread" onSubmit={handleCreateThread} className="card space-y-3 border border-brand-500/30">
+      <form
+        id="new-thread"
+        onSubmit={handleCreateThread}
+        className="card space-y-3 border border-brand-500/30 md:space-y-4"
+      >
         <h2 className="text-sm font-semibold text-brand-100">Start a new conversation</h2>
         <div className="grid gap-2 md:grid-cols-[2fr,1fr]">
           <input
