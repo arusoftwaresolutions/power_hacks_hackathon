@@ -6,13 +6,16 @@ import { ReportSeverity, ReportStatus, UserRole } from '@prisma/client';
 
 export const reportRouter = Router();
 
-const createReportSchema = z.object({
-  targetUserId: z.string().optional(),
-  targetType: z.string(),
-  targetId: z.string().optional(),
-  description: z.string().min(10),
-  severity: z.nativeEnum(ReportSeverity).optional()
-});
+const createReportSchema = z
+  .object({
+    description: z.string().min(10),
+    targetUserId: z.string().optional(),
+    targetType: z.string().optional(),
+    targetId: z.string().optional(),
+    severity: z.nativeEnum(ReportSeverity).optional()
+  })
+  // Allow extra fields without rejecting the request
+  .passthrough();
 
 reportRouter.post('/', requireAuth, async (req, res, next) => {
   try {
@@ -21,7 +24,7 @@ reportRouter.post('/', requireAuth, async (req, res, next) => {
       data: {
         reporterId: req.user!.id,
         targetUserId: data.targetUserId,
-        targetType: data.targetType,
+        targetType: data.targetType ?? 'MANUAL',
         targetId: data.targetId,
         description: data.description,
         severity: data.severity ?? ReportSeverity.MEDIUM
