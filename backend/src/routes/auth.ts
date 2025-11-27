@@ -41,10 +41,13 @@ authRouter.post('/register', async (req, res, next) => {
     const refreshToken = createRefreshToken({ id: user.id, role: user.role });
     await persistRefreshToken(user.id, refreshToken);
 
+    // For cross-site usage (frontend on Vercel, backend on Render),
+    // the browser will only accept and send cookies if SameSite=None
+    // and Secure=true. We still keep Lax in local/dev.
     const cookieOptions = {
       httpOnly: true,
       secure: env.nodeEnv === 'production',
-      sameSite: 'lax' as const,
+      sameSite: (env.nodeEnv === 'production' ? 'none' : 'lax') as 'lax' | 'strict' | 'none',
       domain: env.cookieDomain
     };
 
@@ -90,7 +93,7 @@ authRouter.post('/login', async (req, res, next) => {
     const cookieOptions = {
       httpOnly: true,
       secure: env.nodeEnv === 'production',
-      sameSite: 'lax' as const,
+      sameSite: (env.nodeEnv === 'production' ? 'none' : 'lax') as 'lax' | 'strict' | 'none',
       domain: env.cookieDomain
     };
 
