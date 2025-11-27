@@ -10,6 +10,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showErrorModal, setShowErrorModal] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -22,7 +23,12 @@ export default function LoginPage() {
       });
       router.push('/dashboard');
     } catch (err: any) {
-      setError(err.message || 'Could not sign in');
+      const friendly =
+        err?.status && err.status >= 500
+          ? 'We could not sign you in because of a server problem. Please try again in a moment.'
+          : err?.message || 'Could not sign in';
+      setError(friendly);
+      setShowErrorModal(true);
     } finally {
       setLoading(false);
     }
@@ -78,6 +84,23 @@ export default function LoginPage() {
           </p>
         </form>
       </div>
+
+      {showErrorModal && error && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="w-full max-w-sm rounded-2xl border border-red-500/40 bg-bg/95 p-5 shadow-xl shadow-black/60">
+            <p className="text-xs uppercase tracking-[0.2em] text-red-300">Sign in error</p>
+            <h2 className="mt-2 text-base font-semibold text-brand-50">Something went wrong</h2>
+            <p className="mt-2 text-sm text-brand-200">{error}</p>
+            <button
+              type="button"
+              className="mt-4 btn-primary w-full text-xs"
+              onClick={() => setShowErrorModal(false)}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
