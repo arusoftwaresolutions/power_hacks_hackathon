@@ -44,9 +44,23 @@ reportRouter.get('/', requireAuth, requireRole([UserRole.MODERATOR, UserRole.ADM
   }
 });
 
+// Allow a logged-in user to see their own reports and any moderator response.
+reportRouter.get('/mine', requireAuth, async (req, res, next) => {
+  try {
+    const reports = await prisma.report.findMany({
+      where: { reporterId: req.user!.id },
+      orderBy: { createdAt: 'desc' }
+    });
+    res.json({ reports });
+  } catch (err) {
+    next(err);
+  }
+});
+
 const updateReportSchema = z.object({
   status: z.nativeEnum(ReportStatus).optional(),
-  severity: z.nativeEnum(ReportSeverity).optional()
+  severity: z.nativeEnum(ReportSeverity).optional(),
+  responseMessage: z.string().min(1).max(2000).optional()
 });
 
 reportRouter.patch('/:id', requireAuth, requireRole([UserRole.MODERATOR, UserRole.ADMIN]), async (req, res, next) => {
@@ -55,7 +69,9 @@ reportRouter.patch('/:id', requireAuth, requireRole([UserRole.MODERATOR, UserRol
     const report = await prisma.report.update({
       where: { id: req.params.id },
       data: {
-        ...data,
+        status: data.status,
+        severity: data.severity,
+        responseMessage: data.responseMessage,
         resolvedAt: data.status === ReportStatus.RESOLVED ? new Date() : undefined,
         resolvedById: data.status === ReportStatus.RESOLVED ? req.user!.id : undefined
       }

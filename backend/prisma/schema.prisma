@@ -83,19 +83,21 @@ model ForumPost {
 }
 
 model Report {
-  id            String   @id @default(cuid())
-  reporter      User     @relation("ReportsFiled", fields: [reporterId], references: [id])
-  reporterId    String
-  targetUser    User?    @relation("ReportsOwned", fields: [targetUserId], references: [id])
-  targetUserId  String?
-  targetType    String
-  targetId      String?
-  description   String
-  status        ReportStatus @default(OPEN)
-  severity      ReportSeverity @default(MEDIUM)
-  createdAt     DateTime @default(now())
-  resolvedAt    DateTime?
-  resolvedById  String?
+  id              String         @id @default(cuid())
+  reporter        User           @relation("ReportsFiled", fields: [reporterId], references: [id])
+  reporterId      String
+  targetUser      User?          @relation("ReportsOwned", fields: [targetUserId], references: [id])
+  targetUserId    String?
+  targetType      String
+  targetId        String?
+  description     String
+  status          ReportStatus   @default(OPEN)
+  severity        ReportSeverity @default(MEDIUM)
+  // Short in-app message from a moderator/admin back to the reporter
+  responseMessage String?
+  createdAt       DateTime       @default(now())
+  resolvedAt      DateTime?
+  resolvedById    String?
 }
 
 enum ReportStatus {

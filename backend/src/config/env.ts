@@ -10,13 +10,20 @@ function required(name: string): string {
   return value;
 }
 
+// Ensure we don't accidentally include a trailing slash in origins,
+// which would break CORS checks (the browser origin never has a
+// trailing slash).
+function stripTrailingSlash(url: string): string {
+  return url.replace(/\/$/, '');
+}
+
 export const env = {
   nodeEnv: process.env.NODE_ENV || 'development',
   port: Number(process.env.PORT || 4000),
   databaseUrl: required('DATABASE_URL'),
   jwtAccessSecret: required('JWT_ACCESS_SECRET'),
   jwtRefreshSecret: required('JWT_REFRESH_SECRET'),
-  frontendOrigin: required('FRONTEND_ORIGIN'),
+  frontendOrigin: stripTrailingSlash(required('FRONTEND_ORIGIN')),
   cookieDomain: process.env.COOKIE_DOMAIN,
   spacesEndpoint: process.env.SPACES_ENDPOINT || '',
   spacesRegion: process.env.SPACES_REGION || '',

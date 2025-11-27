@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useCurrentUser } from "../lib/useCurrentUser";
 
 const primaryLinks = [
   { href: "/", label: "Home" },
@@ -12,6 +13,8 @@ const primaryLinks = [
 
 export function HeaderNav() {
   const [open, setOpen] = useState(false);
+  const { user } = useCurrentUser();
+  const isAdmin = user?.role === "ADMIN";
 
   return (
     <div className="relative flex items-center gap-2 md:gap-4">
@@ -22,6 +25,14 @@ export function HeaderNav() {
             {link.label}
           </a>
         ))}
+        {isAdmin && (
+          <a
+            href="/moderation"
+            className="rounded-full bg-emerald-500/15 px-3 py-1.5 text-xs font-semibold text-emerald-200 ring-1 ring-emerald-400/40 hover:bg-emerald-500/25 hover:text-emerald-50"
+          >
+            Admin console
+          </a>
+        )}
         <a href="/login" className="btn-primary text-xs md:text-sm">
           Sign in / Register
         </a>
@@ -35,15 +46,23 @@ export function HeaderNav() {
         aria-expanded={open}
         aria-label="Toggle navigation menu"
       >
-        <span className="relative block h-[10px] w-4">
+        <span className="relative block h-[12px] w-4">
+          {/* Top bar */}
           <span
             className={`absolute left-0 top-0 h-[1.5px] w-full rounded bg-brand-100 transition-transform ${
-              open ? "translate-y-[4px] rotate-45" : ""
+              open ? "translate-y-[5px] rotate-45" : ""
             }`}
           />
+          {/* Middle bar */}
+          <span
+            className={`absolute left-0 top-1/2 h-[1.5px] w-full -translate-y-1/2 rounded bg-brand-100 transition-opacity ${
+              open ? "opacity-0" : "opacity-100"
+            }`}
+          />
+          {/* Bottom bar */}
           <span
             className={`absolute bottom-0 left-0 h-[1.5px] w-full rounded bg-brand-100 transition-transform ${
-              open ? "-translate-y-[4px] -rotate-45" : ""
+              open ? "-translate-y-[5px] -rotate-45" : ""
             }`}
           />
         </span>
@@ -64,6 +83,15 @@ export function HeaderNav() {
                 {link.label}
               </a>
             ))}
+            {isAdmin && (
+              <a
+                href="/moderation"
+                className="rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-1.5 text-sm font-semibold text-emerald-100 hover:bg-emerald-500/20"
+                onClick={() => setOpen(false)}
+              >
+                Admin console
+              </a>
+            )}
             <a
               href="/login"
               className="btn-primary w-full justify-center text-xs"

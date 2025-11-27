@@ -14,7 +14,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className="min-h-screen bg-gradient-to-br from-bg via-surface/90 to-bg text-white">
         <div className="relative mx-auto flex min-h-screen max-w-6xl flex-col px-4 py-6 md:px-6 lg:px-8">
           <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-64 bg-gradient-to-b from-brand-500/25 via-accent/10 to-transparent blur-3xl" />
-          <header className="relative mb-8 flex flex-col gap-4 rounded-full border border-white/5 bg-bg/70 px-4 py-3 shadow-lg shadow-black/30 backdrop-blur md:mb-10 md:flex-row md:items-center md:justify-between">
+          <header className="relative mb-8 flex items-center justify-between gap-4 rounded-full border border-white/5 bg-bg/70 px-4 py-3 shadow-lg shadow-black/30 backdrop-blur md:mb-10">
             <a href="/" className="group flex items-center gap-3">
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-accent text-lg font-black text-white shadow-md transition-transform group-hover:scale-105">
                 HS

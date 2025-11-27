@@ -5,9 +5,15 @@ import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import { swrFetcher } from "./api";
 
+type UserRole = "USER" | "MODERATOR" | "ADMIN";
+
 interface MeResponse {
   user: {
+    id: string;
     name: string;
+    email: string;
+    username: string;
+    role: UserRole;
   };
 }
 
