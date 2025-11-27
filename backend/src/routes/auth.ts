@@ -41,13 +41,15 @@ authRouter.post('/register', async (req, res, next) => {
     const refreshToken = createRefreshToken({ id: user.id, role: user.role });
     await persistRefreshToken(user.id, refreshToken);
 
-    // For cross-site usage (frontend on Vercel, backend on Render),
-    // the browser will only accept and send cookies if SameSite=None
-    // and Secure=true. We still keep Lax in local/dev.
+    // If the frontend runs on a different HTTPS origin (e.g. Vercel) we
+    // need SameSite=None and Secure=true so the browser will accept and
+    // send auth cookies cross-site. For local http://localhost we fall
+    // back to Lax without Secure.
+    const isCrossSiteHttps = env.frontendOrigin.startsWith('https://');
     const cookieOptions = {
       httpOnly: true,
-      secure: env.nodeEnv === 'production',
-      sameSite: (env.nodeEnv === 'production' ? 'none' : 'lax') as 'lax' | 'strict' | 'none',
+      secure: isCrossSiteHttps,
+      sameSite: (isCrossSiteHttps ? 'none' : 'lax') as 'lax' | 'strict' | 'none',
       domain: env.cookieDomain
     };
 
@@ -90,10 +92,11 @@ authRouter.post('/login', async (req, res, next) => {
     const refreshToken = createRefreshToken({ id: user.id, role: user.role });
     await persistRefreshToken(user.id, refreshToken);
 
+    const isCrossSiteHttps = env.frontendOrigin.startsWith('https://');
     const cookieOptions = {
       httpOnly: true,
-      secure: env.nodeEnv === 'production',
-      sameSite: (env.nodeEnv === 'production' ? 'none' : 'lax') as 'lax' | 'strict' | 'none',
+      secure: isCrossSiteHttps,
+      sameSite: (isCrossSiteHttps ? 'none' : 'lax') as 'lax' | 'strict' | 'none',
       domain: env.cookieDomain
     };
 
