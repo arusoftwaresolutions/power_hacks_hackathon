@@ -24,6 +24,8 @@ export function useCurrentUser() {
     {
       shouldRetryOnError: false,
       revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: 10000,
     }
   );
 

@@ -21,7 +21,14 @@ export function useRequireAuth() {
   const router = useRouter();
   const { data, error, isLoading } = useSWR<MeResponse>(
     "/api/auth/me",
-    swrFetcher<MeResponse>
+    swrFetcher<MeResponse>,
+    {
+      // Avoid re-fetching too aggressively; this reduces latency and duplicate
+      // calls on page focus or reconnect.
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: 10000
+    }
   );
 
   useEffect(() => {

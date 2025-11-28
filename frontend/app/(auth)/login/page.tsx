@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { mutate } from 'swr';
 import { apiFetch } from '../../../lib/api';
 
 export default function LoginPage() {
@@ -17,10 +18,18 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
     try {
-      await apiFetch('/api/auth/login', {
+      const data = await apiFetch<{
+        user: { id: string; name: string; email: string; username: string; role: string };
+      }>('/api/auth/login', {
         method: 'POST',
         body: JSON.stringify({ emailOrUsername, password })
       });
+
+      // Optimistically populate the /api/auth/me cache so dashboard and
+      // header can render immediately without waiting for another network
+      // round-trip.
+      await mutate('/api/auth/me', data, false);
+
       router.push('/dashboard');
     } catch (err: any) {
       const friendly =

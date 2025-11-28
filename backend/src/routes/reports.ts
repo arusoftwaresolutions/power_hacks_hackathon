@@ -8,7 +8,9 @@ export const reportRouter = Router();
 
 const createReportSchema = z
   .object({
-    description: z.string().min(10),
+    // Only require that there is some description text; frontend enforces
+    // longer messages for better quality.
+    description: z.string().min(1),
     targetUserId: z.string().optional(),
     targetType: z.string().optional(),
     targetId: z.string().optional(),

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { mutate } from 'swr';
 import { apiFetch } from '../../../lib/api';
 
 export default function RegisterPage() {
@@ -23,10 +24,17 @@ export default function RegisterPage() {
     setLoading(true);
     setError(null);
     try {
-      await apiFetch('/api/auth/register', {
+      const data = await apiFetch<{
+        user: { id: string; name: string; email: string; username: string; role: string };
+      }>('/api/auth/register', {
         method: 'POST',
         body: JSON.stringify(form)
       });
+
+      // Optimistically cache the new user so the dashboard loads instantly
+      // instead of waiting for another /api/auth/me request.
+      await mutate('/api/auth/me', data, false);
+
       router.push('/dashboard');
     } catch (err: any) {
       const friendly =
