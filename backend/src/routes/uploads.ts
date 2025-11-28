@@ -29,7 +29,12 @@ uploadsRouter.post('/signed-url', requireAuth, async (req, res, next) => {
 
     const url = await s3.getSignedUrlPromise('putObject', params);
 
-    res.json({ url, key });
+    // Compute a public URL for later download/viewing. This assumes the
+    // bucket is accessible via the standard `bucket.endpoint` pattern.
+    const endpointHost = env.spacesEndpoint.replace(/^https?:\/\//, '');
+    const publicUrl = `https://${env.spacesBucket}.${endpointHost}/${key}`;
+
+    res.json({ url, key, publicUrl });
   } catch (err) {
     next(err);
   }

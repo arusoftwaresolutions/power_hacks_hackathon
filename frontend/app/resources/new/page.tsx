@@ -29,6 +29,7 @@ export default function NewResourcePage() {
     tags: '',
     isFeatured: false,
   });
+  const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -64,6 +65,37 @@ export default function NewResourcePage() {
         .map((t) => t.trim())
         .filter(Boolean);
 
+      let attachmentUrl: string | undefined;
+      let attachmentMimeType: string | undefined;
+
+      if (attachmentFile) {
+        // 1) Ask backend for a signed upload URL
+        const { url, publicUrl } = await apiFetch<{
+          url: string;
+          key: string;
+          publicUrl: string;
+        }>('/api/uploads/signed-url', {
+          method: 'POST',
+          body: JSON.stringify({ mimeType: attachmentFile.type || 'application/octet-stream' }),
+        });
+
+        // 2) Upload the file directly to object storage
+        const uploadRes = await fetch(url, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': attachmentFile.type || 'application/octet-stream',
+          },
+          body: attachmentFile,
+        });
+
+        if (!uploadRes.ok) {
+          throw new Error('Could not upload attachment. Please try again.');
+        }
+
+        attachmentUrl = publicUrl;
+        attachmentMimeType = attachmentFile.type || 'application/octet-stream';
+      }
+
       await apiFetch('/api/resources', {
         method: 'POST',
         body: JSON.stringify({
@@ -73,6 +105,8 @@ export default function NewResourcePage() {
           level: form.level,
           tags,
           isFeatured: form.isFeatured,
+          attachmentUrl,
+          attachmentMimeType,
         }),
       });
 
@@ -157,6 +191,18 @@ export default function NewResourcePage() {
             onChange={(e) => setForm((f) => ({ ...f, tags: e.target.value }))}
             placeholder="privacy, online safety, screenshots"
           />
+        </div>
+        <div className="space-y-1 text-sm">
+          <label className="text-brand-100">Attachment (optional)</label>
+          <input
+            type="file"
+            accept=".pdf,.doc,.docx,.ppt,.pptx,.png,.jpg,.jpeg,.zip,application/pdf"
+            className="w-full text-xs text-brand-200 file:mr-3 file:rounded-full file:border file:border-white/10 file:bg-bg/60 file:px-4 file:py-1.5 file:text-xs file:font-medium file:text-brand-100 hover:file:bg-white/10"
+            onChange={(e) => setAttachmentFile(e.target.files?.[0] ?? null)}
+          />
+          <p className="text-[11px] text-brand-300">
+            Upload supporting materials like PDFs, slides, or worksheets.
+          </p>
         </div>
         <label className="flex items-center gap-2 text-xs text-brand-200">
           <input

@@ -11,6 +11,8 @@ interface ResourcesResponse {
     content: string;
     level: string;
     category: { name: string };
+    attachmentUrl?: string | null;
+    attachmentMimeType?: string | null;
   }[];
 }
 
@@ -45,6 +47,16 @@ export default function ResourcesPage() {
             </p>
             <h2 className="mt-1 text-sm font-semibold text-brand-50">{r.title}</h2>
             <p className="mt-2 text-xs text-brand-200 line-clamp-4">{r.content}</p>
+            {r.attachmentUrl && (
+              <a
+                href={r.attachmentUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 inline-flex items-center gap-2 text-[11px] font-semibold text-emerald-300 hover:text-emerald-100"
+              >
+                <span>Download learning material</span>
+              </a>
+            )}
           </article>
         ))}
       </div>

@@ -50,7 +50,9 @@ const createResourceSchema = z.object({
   categoryId: z.string(),
   level: z.string(),
   tags: z.array(z.string()).default([]),
-  isFeatured: z.boolean().optional()
+  isFeatured: z.boolean().optional(),
+  attachmentUrl: z.string().url().optional(),
+  attachmentMimeType: z.string().optional()
 });
 
 resourcesRouter.post('/', requireAuth, requireRole([UserRole.MODERATOR, UserRole.ADMIN]), checkContentSafety, async (req, res, next) => {
@@ -65,7 +67,9 @@ resourcesRouter.post('/', requireAuth, requireRole([UserRole.MODERATOR, UserRole
         tags: data.tags,
         isFeatured: data.isFeatured ?? false,
         authorId: req.user!.id,
-        publishedAt: new Date()
+        publishedAt: new Date(),
+        attachmentUrl: data.attachmentUrl,
+        attachmentMimeType: data.attachmentMimeType
       }
     });
 

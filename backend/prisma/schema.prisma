@@ -131,6 +131,9 @@ model Resource {
   authorId    String
   publishedAt DateTime?
   isFeatured  Boolean          @default(false)
+  // Optional attachment (e.g. PDF, slide deck, worksheet) linked to this resource
+  attachmentUrl       String?
+  attachmentMimeType  String?
 }
 
 model UploadedFile {
