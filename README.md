@@ -1,5 +1,7 @@
 # HerSafeSpace – Safety by Design Platform
 
+[![Live on Vercel](https://img.shields.io/badge/Project%20Live-https%3A%2F%2Fpower--hacks--hackathon--etx9.vercel.app-3b82f6?style=for-the-badge)](https://power-hacks-hackathon-etx9.vercel.app)
+
 HerSafeSpace is a full‑stack web application built for the **Power Learn Hackathon** under the theme **“Safety by Design”**. It provides a **safe digital space for African women and girls** to learn, connect and seek support.
 
 Key pillars:
@@ -91,11 +93,13 @@ This repo contains a **backend API** and a **frontend web app**:
 - Next.js (App Router), React, TypeScript
 - Tailwind CSS, Framer Motion, SWR
 
+**Current Deployment**
+- Frontend: **Vercel** – `https://power-hacks-hackathon-etx9.vercel.app`
+- Backend API: **Render** – Node.js service
+- Database: **PostgreSQL on Render** (via Prisma)
+
 **Infrastructure Targets**
-- Backend: Node.js service deployed to **Render** (free tier) or similar
-- Database: **Supabase** (hosted PostgreSQL, free tier) or any compatible Postgres
 - File storage: Any **S3‑compatible** object storage (optionally Supabase Storage via S3 gateway)
-- Frontend: deployable to **Vercel**
 
 ---
 ## Getting Started (Local Development)
@@ -209,27 +213,26 @@ Basic frontend tests are not yet implemented; you can integrate Jest/React Testi
 ---
 ## Deployment Overview
 
-### Backend (Render + Supabase)
+### Backend (Render)
 
-1. **Create a Supabase project**
-   - In the Supabase dashboard, create a new project.
-   - Go to Project Settings → Database and copy the **connection string**.
-   - This will be your `DATABASE_URL`.
+1. **Provision a PostgreSQL database** (e.g. Render PostgreSQL)
+   - Create a new Postgres instance on Render (or another hosted Postgres provider).
+   - Copy the **connection string** and use it as `DATABASE_URL`.
 
 2. **Push this repo to GitHub/GitLab** (if not already)
 
 3. **Create a new Web Service on Render**
    - Go to Render → New → Web Service.
    - Connect your repo and select the `backend/` directory.
-   - **Build Command:** `npm install && npm run prisma:generate && npm run build`
+   - **Build Command:** `npm install && npm run prisma:generate && npx prisma db push && npm run build`
    - **Start Command:** `npm run start`
    - Environment:
      - `NODE_ENV=production`
-     - `DATABASE_URL=<your Supabase connection string>`
+     - `DATABASE_URL=<your Postgres connection string>`
      - `JWT_ACCESS_SECRET=<long-random-string>`
      - `JWT_REFRESH_SECRET=<another-long-random-string>`
-     - `FRONTEND_ORIGIN=https://your-frontend-domain` (Vercel URL in production)
-     - `COOKIE_DOMAIN=yourdomain.com` (or `.yourdomain.com`)
+     - `FRONTEND_ORIGIN=https://power-hacks-hackathon-etx9.vercel.app` (or your own domain)
+     - `COOKIE_DOMAIN=her-safe-space-v1ny.onrender.com` (or your custom API domain)
      - Optional: `SPACES_*` if you use S3-compatible storage.
 
 4. Render will build and start the service. Once deployed, test:
