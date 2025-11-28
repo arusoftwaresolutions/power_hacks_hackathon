@@ -38,7 +38,7 @@ export default function ReportPage({ searchParams }: SearchParams) {
         method: 'POST',
         body: JSON.stringify({ description, targetType: inferredTargetType, targetId: inferredTargetId })
       });
-      setStatus('Your report has been submitted. A moderator will review it shortly.');
+      setStatus('Your report has been submitted. You can track its progress on your dashboard under "Your safety reports".');
       setDescription('');
     } catch (err: any) {
       const friendly =

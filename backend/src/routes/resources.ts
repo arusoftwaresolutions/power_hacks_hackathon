@@ -19,6 +19,18 @@ resourcesRouter.get('/', async (_req, res, next) => {
   }
 });
 
+// Expose categories so admins/moderators can choose where to publish new guides.
+resourcesRouter.get('/categories', async (_req, res, next) => {
+  try {
+    const categories = await prisma.resourceCategory.findMany({
+      orderBy: { name: 'asc' }
+    });
+    res.json({ categories });
+  } catch (err) {
+    next(err);
+  }
+});
+
 resourcesRouter.get('/:id', async (req, res, next) => {
   try {
     const resource = await prisma.resource.findUnique({
