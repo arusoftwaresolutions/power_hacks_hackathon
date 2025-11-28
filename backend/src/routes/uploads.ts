@@ -17,6 +17,15 @@ const s3 = new AWS.S3({
 
 uploadsRouter.post('/signed-url', requireAuth, async (req, res, next) => {
   try {
+    // If object storage is not configured, return a clear error instead of
+    // throwing an obscure SDK exception.
+    if (!env.spacesBucket || !env.spacesEndpoint || !env.spacesKey || !env.spacesSecret) {
+      return res.status(500).json({
+        error:
+          'File uploads are not configured on this server yet. Please contact the admin to set SPACES_* environment variables.'
+      });
+    }
+
     const { mimeType } = req.body as { mimeType?: string };
     const key = `${req.user!.id}/${uuid()}`;
 

@@ -113,10 +113,12 @@ export default function NewResourcePage() {
       setSuccess('Your learning guide has been published to the hub.');
       setForm({ ...form, title: '', content: '', tags: '' });
     } catch (err: any) {
-      const friendly =
-        err?.status && err.status >= 500
-          ? 'We could not publish this guide because of a server problem. Please try again in a moment.'
-          : err?.message || 'Could not publish guide';
+      const msg = err?.message || 'Could not publish guide';
+      // If the backend reports that uploads are not configured, surface that
+      // clearly so the admin understands what to fix.
+      const friendly = msg.includes('File uploads are not configured')
+        ? 'File uploads are not configured on the server yet. Please add storage credentials (SPACES_* env vars) or publish this guide without an attachment.'
+        : msg;
       setError(friendly);
       setShowErrorModal(true);
     } finally {
