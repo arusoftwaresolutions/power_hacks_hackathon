@@ -11,9 +11,11 @@ const createReportSchema = z
     // Only require that there is some description text; frontend enforces
     // longer messages for better quality.
     description: z.string().min(1),
-    targetUserId: z.string().optional(),
+    // Frontend sometimes sends null for these IDs; accept string, null or
+    // undefined so validation doesn't fail unnecessarily.
+    targetUserId: z.string().nullable().optional(),
     targetType: z.string().optional(),
-    targetId: z.string().optional(),
+    targetId: z.string().nullable().optional(),
     severity: z.nativeEnum(ReportSeverity).optional()
   })
   // Allow extra fields without rejecting the request
