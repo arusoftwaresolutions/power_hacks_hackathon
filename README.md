@@ -231,8 +231,8 @@ Basic frontend tests are not yet implemented; you can integrate Jest/React Testi
      - `DATABASE_URL=<your Postgres connection string>`
      - `JWT_ACCESS_SECRET=<long-random-string>`
      - `JWT_REFRESH_SECRET=<another-long-random-string>`
-     - `FRONTEND_ORIGIN=https://power-hacks-hackathon-etx9.vercel.app` (or your own domain)
-     - `COOKIE_DOMAIN=her-safe-space-v1ny.onrender.com` (or your custom API domain)
+     - `FRONTEND_ORIGIN= your own domain
+     - `COOKIE_DOMAIN=your custom API domain(backend domain
      - Optional: `SPACES_*` if you use S3-compatible storage.
 
 4. Render will build and start the service. Once deployed, test:
